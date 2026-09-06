@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScootKeeper – digitales Serviceheft für deinen E-Scooter</title>
+<meta name="description" content="Wartung, Akku, Kilometer und Reifendruck deines E-Scooters dokumentieren – mit Erinnerungen. Offline-first, ohne Konto, ohne Tracking.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="ScootKeeper">
+<meta property="og:url" content="https://scorparc.github.io/scootkeeper-content/">
+<meta property="og:title" content="ScootKeeper – digitales Serviceheft für deinen E-Scooter">
+<meta property="og:description" content="Wartung, Akku, Kilometer und Reifendruck deines E-Scooters dokumentieren – mit Erinnerungen. Offline-first, ohne Konto, ohne Tracking.">
+<meta property="og:image" content="https://scorparc.github.io/scootkeeper-content/assets/og.png">
+<meta name="twitter:card" content="summary">
+<style>
+  :root{
+    --bg:#f1f6f2; --surface:#ffffff; --surface-2:#e6f0e9;
+    --text:#12211a; --muted:#4d6459; --line:#cfe0d6;
+    --primary:#12664a; --on-primary:#ffffff; --accent:#a8e6c4;
+    --radius:16px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0e1512; --surface:#16211c; --surface-2:#1d2b24;
+      --text:#e6f0e9; --muted:#a9bfb4; --line:#2a3b33;
+      --primary:#7fd7ab; --on-primary:#06231a; --accent:#1f4b39;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow-wrap:break-word;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:0 20px}
+  a{color:var(--primary)}
+  h1,h2,h3{line-height:1.25; margin:0 0 .5em}
+  h1{font-size:clamp(1.9rem,6vw,2.8rem)}
+  h2{font-size:clamp(1.35rem,4vw,1.8rem); margin-top:0}
+  p{margin:0 0 1em}
+  section{padding:48px 0; border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0}
+
+  /* Hero */
+  header{padding:56px 0 8px; text-align:center}
+  .icon{width:112px; height:112px; border-radius:26px; display:block; margin:0 auto 20px}
+  .tagline{font-size:clamp(1.05rem,3.2vw,1.25rem); color:var(--muted); max-width:34em; margin:0 auto 1.2em}
+  .badge{
+    display:inline-block; background:var(--surface-2); color:var(--text);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 15px; font-size:.9rem;
+  }
+
+  /* Rechner */
+  .calc{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+  .fields{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  label{display:block; font-size:.9rem; color:var(--muted); margin-bottom:6px}
+  input{
+    width:100%; padding:12px 14px; font-size:1rem; font-family:inherit;
+    color:var(--text); background:var(--bg);
+    border:1px solid var(--line); border-radius:10px;
+  }
+  input:focus{outline:2px solid var(--primary); outline-offset:1px}
+  .result{margin-top:24px}
+  .headline{
+    background:var(--accent); color:var(--text);
+    border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px;
+  }
+  .headline .num{display:block; font-size:clamp(2rem,8vw,2.9rem); font-weight:700; line-height:1.1}
+  .headline .lbl{display:block; font-size:.95rem; color:var(--muted)}
+  .cmp{display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .cmp div{background:var(--surface-2); border-radius:12px; padding:16px; text-align:center}
+  .cmp strong{display:block; font-size:1.4rem}
+  .cmp span{font-size:.88rem; color:var(--muted)}
+  .note{font-size:.86rem; color:var(--muted); margin-top:16px}
+
+  /* Karten */
+  .cards{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px}
+  .card h3{font-size:1.05rem; margin-bottom:.4em}
+  .card p{margin:0; color:var(--muted); font-size:.95rem}
+
+  /* Screenshots */
+  .shots{display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory}
+  .shots figure{margin:0; flex:0 0 220px; scroll-snap-align:start}
+  .shots img{
+    width:100%; height:auto; display:block; border-radius:14px;
+    border:1px solid var(--line); background:var(--surface);
+  }
+  .shots figcaption{font-size:.85rem; color:var(--muted); margin-top:8px; text-align:center}
+
+  ul.plain{margin:0 0 1em; padding-left:1.2em}
+  ul.plain li{margin-bottom:.4em}
+
+  .callout{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--primary); border-radius:12px; padding:18px 20px}
+
+  footer{border-top:1px solid var(--line); padding:32px 0 48px; color:var(--muted); font-size:.92rem}
+  footer nav{display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <img class="icon" src="assets/icon.png" width="256" height="256" alt="ScootKeeper App-Icon">
+    <h1>ScootKeeper</h1>
+    <p class="tagline">Wartung, Akku, Kilometer &amp; Reifendruck deines E-Scooters – mit Erinnerungen.</p>
+    <p class="badge">Derzeit in der Testphase – noch nicht öffentlich im Play&nbsp;Store</p>
+  </div>
+</header>
+
+<main>
+
+<section id="rechner">
+  <div class="wrap">
+    <h2>Was kostet dich dein Scooter pro Kilometer?</h2>
+    <p>ScootKeeper rechnet aus deinen Wartungskosten und Kilometerständen die Kosten pro Kilometer aus – und stellt sie den Kosten derselben Strecke mit ÖPNV oder Auto gegenüber. Dieselbe Rechnung kannst du hier direkt ausprobieren.</p>
+
+    <div class="calc">
+      <div class="fields">
+        <div>
+          <label for="km">Gefahrene Kilometer</label>
+          <input id="km" type="number" inputmode="decimal" min="0" step="1" value="1240">
+        </div>
+        <div>
+          <label for="cost">Bisherige Kosten (€)</label>
+          <input id="cost" type="number" inputmode="decimal" min="0" step="0.01" value="24.90">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="headline">
+          <span class="num" id="cpk">–</span>
+          <span class="lbl" id="cpkLabel">Cent pro Kilometer</span>
+        </div>
+        <div class="cmp">
+          <div><strong id="transit">–</strong><span>hätte ÖPNV gekostet</span></div>
+          <div><strong id="car">–</strong><span>hätte ein Auto gekostet</span></div>
+        </div>
+      </div>
+
+      <p class="note">Die Vergleichswerte sind grobe Richtwerte zur Einordnung, keine tagesaktuelle Kalkulation: ÖPNV 12&nbsp;ct/km (Deutschlandticket bei angenommenen rund 500&nbsp;km im Monat), Auto 35&nbsp;ct/km (ADAC-Kostenschätzung für einen Kleinwagen inklusive Wertverlust, Versicherung, Kraftstoff und Wartung).</p>
+    </div>
+  </div>
+</section>
+
+<section id="funktionen">
+  <div class="wrap">
+    <h2>Funktionen</h2>
+    <div class="cards">
+      <div class="card"><h3>Fahrzeugprofile</h3><p>Mit Rahmennummer, Kaufdaten und Notizen – die Basis deiner Fahrzeugdokumentation.</p></div>
+      <div class="card"><h3>Servicehistorie</h3><p>Wartungseinträge mit Kosten und Kilometerstand, lückenlos nachvollziehbar.</p></div>
+      <div class="card"><h3>Akku &amp; Kilometer</h3><p>Ladevorgänge, Kilometerstände und Reifendruck dokumentieren.</p></div>
+      <div class="card"><h3>Erinnerungen</h3><p>Kilometer- und zeitbasierte Erinnerungen für Wartung und Pflege.</p></div>
+      <div class="card"><h3>Fotos &amp; Belege</h3><p>Fotos und Kaufbelege zu Fahrzeugen und Einträgen hinterlegen.</p></div>
+      <div class="card"><h3>Fahrzeugdossier als PDF</h3><p>Alle Daten gebündelt teilen – etwa gegenüber Polizei oder Versicherung.</p></div>
+      <div class="card"><h3>CSV &amp; Kalender</h3><p>Wartungsdaten als CSV exportieren, Termine in den Kalender übernehmen.</p></div>
+      <div class="card"><h3>Lokale Sicherung</h3><p>Kostenlose ZIP-Sicherung aller Daten und Fotos, speicherbar oder teilbar.</p></div>
+      <div class="card"><h3>Sechs Sprachen</h3><p>Deutsch, Englisch, Französisch, Italienisch, Spanisch und Portugiesisch.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="wrap">
+    <h2>Einblicke</h2>
+    <div class="shots">
+      <figure><img src="assets/shot-dashboard.png" width="540" height="1080" alt="Dashboard mit Anzahl Scooter, Gesamt-Kilometerstand, Wartungskosten und Erinnerungen" loading="lazy"><figcaption>Dashboard</figcaption></figure>
+      <figure><img src="assets/shot-detail.png" width="540" height="1080" alt="Fahrzeugdetail mit Fahrzeugdaten und Export als PDF oder CSV" loading="lazy"><figcaption>Fahrzeugdaten</figcaption></figure>
+      <figure><img src="assets/shot-wartung.png" width="540" height="1080" alt="Wartungslog mit Erinnerungen und einem Eintrag inklusive Kosten" loading="lazy"><figcaption>Wartungslog</figcaption></figure>
+      <figure><img src="assets/shot-liste.png" width="540" height="1080" alt="Liste der eigenen Scooter" loading="lazy"><figcaption>Meine Scooter</figcaption></figure>
+      <figure><img src="assets/shot-hilfe.png" width="540" height="1080" alt="Hilfeseite mit Erklärungen zu den Kernfunktionen" loading="lazy"><figcaption>So funktioniert's</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="datenschutz">
+  <div class="wrap">
+    <h2>Datenschutz</h2>
+    <p>ScootKeeper funktioniert ohne Konto und ohne eigenen Server. Deine Einträge werden lokal auf deinem Gerät gespeichert. Es gibt keine Werbung, kein Tracking und keine Weitergabe deiner Daten.</p>
+    <p>Damit Impressum und Datenschutzerklärung aktuell bleiben, lädt die App diese Texte höchstens einmal täglich von GitHub. Dabei wird technisch bedingt deine IP-Adresse an GitHub übertragen; App-Inhalte werden dabei nicht übermittelt. Ohne Internetverbindung werden die mitgelieferten Fassungen angezeigt.</p>
+    <p>Die kostenlose lokale ZIP-Sicherung kann über eine App deiner Wahl gespeichert oder geteilt werden. Mit Pro kannst du deine Daten zusätzlich in deinem eigenen Google-Drive-Konto sichern – verschlüsselt übertragen (TLS) und in einem app-eigenen, für andere Apps unsichtbaren Bereich gespeichert. Nur du hast Zugriff; wir erhalten deine Daten nicht.</p>
+  </div>
+</section>
+
+<section id="transparenz">
+  <div class="wrap">
+    <h2>Kosten und Transparenz</h2>
+    <p>ScootKeeper&nbsp;Pro ist ein Abo und aktuell als „Bald verfügbar“ gekennzeichnet. Es ergänzt das kostenlose lokale Backup um die komfortable Sicherung in Google Drive. Alle übrigen hier gezeigten Funktionen sind kostenlos nutzbar.</p>
+    <div class="callout">
+      <p style="margin:0"><strong>Keine Vermittlung, keine Provision.</strong> ScootKeeper vermittelt keine Produkte oder Dienstleistungen und enthält keine Affiliate- oder Partnerlinks. Es fließt keine Provision, und es gibt keine Werbepartner. Die App verdient ausschließlich über das optionale Pro-Abo.</p>
+    </div>
+  </div>
+</section>
+
+<section id="haftung">
+  <div class="wrap">
+    <h2>Hinweis</h2>
+    <p>ScootKeeper ist ein Hilfsmittel zur Eigenorganisation und ersetzt keine fachliche Wartung durch eine Werkstatt. Die Kostenvergleiche auf dieser Seite dienen der groben Einordnung und sind keine verbindliche Kalkulation.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://scorparc.github.io/legal/impressum.html">Impressum</a>
+      <a href="https://scorparc.github.io/legal/scootkeeper/datenschutz.html">Datenschutzerklärung</a>
+    </nav>
+    <p style="margin:0">© 2026 Marc Neumann · ScootKeeper</p>
+  </div>
+</footer>
+
+<script>
+// Rechenlogik 1:1 gespiegelt aus lib/core/mileage_math.dart der App.
+// Konstanten dort: publicTransitCostPerKmCents = 12, carCostPerKmCents = 35.
+var PUBLIC_TRANSIT_COST_PER_KM_CENTS = 12;
+var CAR_COST_PER_KM_CENTS = 35;
+
+// Spiegelt costPerKmCents({totalCostCents, totalKm}) aus mileage_math.dart:
+// liefert null, wenn totalKm null/<=0 oder totalCostCents <= 0.
+function costPerKmCents(totalCostCents, totalKm) {
+  if (totalKm === null || totalKm <= 0 || totalCostCents <= 0) return null;
+  return totalCostCents / totalKm;
+}
+
+// Spiegelt comparisonCostCents(totalKm, costPerKmCents) aus mileage_math.dart:
+// (totalKm * costPerKmCents).round()
+function comparisonCostCents(totalKm, cpkCents) {
+  return Math.round(totalKm * cpkCents);
+}
+
+function euro(cents) {
+  return (cents / 100).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+}
+
+function update() {
+  var km = parseFloat(document.getElementById('km').value);
+  var euros = parseFloat(document.getElementById('cost').value);
+  if (isNaN(km)) km = 0;
+  if (isNaN(euros)) euros = 0;
+  // Die App rechnet intern in Cent (int), daher hier ebenso runden.
+  var totalCostCents = Math.round(euros * 100);
+
+  var cpk = costPerKmCents(totalCostCents, km);
+  var cpkEl = document.getElementById('cpk');
+  var lblEl = document.getElementById('cpkLabel');
+
+  if (cpk === null) {
+    cpkEl.textContent = '–';
+    lblEl.textContent = 'Bitte Kilometer und Kosten größer als 0 eingeben';
+    document.getElementById('transit').textContent = '–';
+    document.getElementById('car').textContent = '–';
+    return;
+  }
+
+  cpkEl.textContent = cpk.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ct';
+  lblEl.textContent = 'pro Kilometer';
+  document.getElementById('transit').textContent = euro(comparisonCostCents(km, PUBLIC_TRANSIT_COST_PER_KM_CENTS));
+  document.getElementById('car').textContent = euro(comparisonCostCents(km, CAR_COST_PER_KM_CENTS));
+}
+
+document.getElementById('km').addEventListener('input', update);
+document.getElementById('cost').addEventListener('input', update);
+update();
+</script>
+
+</body>
+</html>
