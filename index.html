@@ -13,7 +13,14 @@
 <meta property="og:title" content="ScootKeeper – digitales Serviceheft für deinen E-Scooter">
 <meta property="og:description" content="Wartung, Akku, Kilometer und Reifendruck deines E-Scooters dokumentieren – mit Erinnerungen. Offline-first, ohne Konto, ohne Tracking.">
 <meta property="og:image" content="https://scorparc.github.io/scootkeeper-content/assets/og.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ScootKeeper – digitales Serviceheft für deinen E-Scooter">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://scorparc.github.io/scootkeeper-content/">
+<link rel="alternate" hreflang="de" href="https://scorparc.github.io/scootkeeper-content/">
+<link rel="alternate" hreflang="en" href="https://scorparc.github.io/scootkeeper-content/en/">
+<link rel="alternate" hreflang="x-default" href="https://scorparc.github.io/scootkeeper-content/">
 <style>
   :root{
     --bg:#f1f6f2; --surface:#ffffff; --surface-2:#e6f0e9;
@@ -44,8 +51,15 @@
   section{padding:48px 0; border-top:1px solid var(--line)}
   section:first-of-type{border-top:0}
 
+  /* Sprachumschalter */
+  .lang{display:flex; justify-content:flex-end; gap:10px; padding-top:18px; font-size:.9rem}
+  .lang a,.lang span{padding:4px 10px; border-radius:999px; text-decoration:none}
+  .lang span{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
+  .lang a{color:var(--primary); border:1px solid transparent}
+  .lang a:hover{border-color:var(--line)}
+
   /* Hero */
-  header{padding:56px 0 8px; text-align:center}
+  header{padding:20px 0 8px; text-align:center}
   .icon{width:112px; height:112px; border-radius:26px; display:block; margin:0 auto 20px}
   .tagline{font-size:clamp(1.05rem,3.2vw,1.25rem); color:var(--muted); max-width:34em; margin:0 auto 1.2em}
   .badge{
@@ -103,6 +117,10 @@
 </head>
 <body>
 
+<div class="wrap">
+  <nav class="lang" aria-label="Sprache"><span aria-current="true">Deutsch</span><a href="en/" hreflang="en" lang="en">English</a></nav>
+</div>
+
 <header>
   <div class="wrap">
     <img class="icon" src="assets/icon.png" width="256" height="256" alt="ScootKeeper App-Icon">
@@ -143,6 +161,47 @@
       </div>
 
       <p class="note">Die Vergleichswerte sind grobe Richtwerte zur Einordnung, keine tagesaktuelle Kalkulation: ÖPNV 12&nbsp;ct/km (Deutschlandticket bei angenommenen rund 500&nbsp;km im Monat), Auto 35&nbsp;ct/km (ADAC-Kostenschätzung für einen Kleinwagen inklusive Wertverlust, Versicherung, Kraftstoff und Wartung).</p>
+    </div>
+  </div>
+</section>
+
+<section id="akku">
+  <div class="wrap">
+    <h2>Wie gesund ist dein Akku noch?</h2>
+    <p>Aus einem Ladevorgang – geladene Energie und Ladestand vorher/nachher – rechnet ScootKeeper die tatsächliche Kapazität hoch und vergleicht sie mit der Nennkapazität deines Akkus. Auch diese Rechnung kannst du hier direkt ausprobieren.</p>
+
+    <div class="calc">
+      <div class="fields">
+        <div>
+          <label for="nominal">Nennkapazität laut Hersteller (Wh)</label>
+          <input id="nominal" type="number" inputmode="decimal" min="0" step="1" value="468">
+        </div>
+        <div>
+          <label for="energy">Geladene Energie (Wh)</label>
+          <input id="energy" type="number" inputmode="decimal" min="0" step="1" value="180">
+        </div>
+        <div>
+          <label for="from">Ladestand vorher (%)</label>
+          <input id="from" type="number" inputmode="numeric" min="0" max="100" step="1" value="20">
+        </div>
+        <div>
+          <label for="to">Ladestand nachher (%)</label>
+          <input id="to" type="number" inputmode="numeric" min="0" max="100" step="1" value="70">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="headline">
+          <span class="num" id="health">–</span>
+          <span class="lbl" id="healthLabel">Akku-Gesundheit</span>
+        </div>
+        <div class="cmp">
+          <div><strong id="capacity">–</strong><span>geschätzte Ist-Kapazität</span></div>
+          <div><strong id="capacityLoss">–</strong><span>gegenüber der Nennkapazität</span></div>
+        </div>
+      </div>
+
+      <p class="note">Ladebereiche unter 10&nbsp;Prozentpunkten sind zu ungenau für eine Hochrechnung und liefern in der App bewusst kein Ergebnis. Liegen gar keine Kapazitätsdaten vor, schätzt die App stattdessen über die Zyklenzahl (rund 4&nbsp;% Verlust je 100 Vollzyklen, nach unten auf 50&nbsp;% begrenzt). Beides sind Schätzwerte, keine Labormessung.</p>
     </div>
   </div>
 </section>
@@ -267,6 +326,65 @@ function update() {
 document.getElementById('km').addEventListener('input', update);
 document.getElementById('cost').addEventListener('input', update);
 update();
+
+// Rechenlogik 1:1 gespiegelt aus lib/core/battery_math.dart der App.
+
+// Spiegelt estimateCapacityWh({energyWh, fromPercent, toPercent}):
+// Bereiche unter 10 Prozentpunkten (fraction < 0.1) liefern null.
+function estimateCapacityWh(energyWh, fromPercent, toPercent) {
+  if (energyWh === null || fromPercent === null || toPercent === null) return null;
+  var fraction = (toPercent - fromPercent) / 100.0;
+  if (fraction < 0.1 || energyWh <= 0) return null;
+  return energyWh / fraction;
+}
+
+// Spiegelt batteryHealthScore({nominalWh, avgCapacityWh, cycles}) für den
+// Fall mit Kapazitätsdaten: (avgCapacityWh / nominalWh * 100).clamp(0,100).round()
+function batteryHealthScore(nominalWh, avgCapacityWh) {
+  if (nominalWh !== null && nominalWh > 0 && avgCapacityWh !== null) {
+    return Math.round(Math.min(100, Math.max(0, avgCapacityWh / nominalWh * 100)));
+  }
+  return null;
+}
+
+function num(id) {
+  var v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
+}
+
+function updateBattery() {
+  var nominal = num('nominal');
+  var capacity = estimateCapacityWh(num('energy'), num('from'), num('to'));
+  var healthEl = document.getElementById('health');
+  var labelEl = document.getElementById('healthLabel');
+  var capEl = document.getElementById('capacity');
+  var lossEl = document.getElementById('capacityLoss');
+
+  if (capacity === null) {
+    healthEl.textContent = '–';
+    labelEl.textContent = 'Der Ladebereich muss mindestens 10 Prozentpunkte umfassen';
+    capEl.textContent = '–';
+    lossEl.textContent = '–';
+    return;
+  }
+
+  capEl.textContent = Math.round(capacity).toLocaleString('de-DE') + ' Wh';
+  var score = batteryHealthScore(nominal, capacity);
+  if (score === null) {
+    healthEl.textContent = '–';
+    labelEl.textContent = 'Bitte eine Nennkapazität größer als 0 eingeben';
+    lossEl.textContent = '–';
+    return;
+  }
+  healthEl.textContent = score + ' %';
+  labelEl.textContent = 'Akku-Gesundheit';
+  lossEl.textContent = (score >= 100 ? '±0' : '−' + (100 - score)) + ' %';
+}
+
+['nominal', 'energy', 'from', 'to'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', updateBattery);
+});
+updateBattery();
 </script>
 
 </body>

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScootKeeper &ndash; the digital service book for your e-scooter</title>
+<meta name="description" content="Track maintenance, battery, mileage and tyre pressure of your e-scooter, with reminders. Offline-first, no account, no tracking.">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:site_name" content="ScootKeeper">
+<meta property="og:url" content="https://scorparc.github.io/scootkeeper-content/en/">
+<meta property="og:title" content="ScootKeeper - the digital service book for your e-scooter">
+<meta property="og:description" content="Track maintenance, battery, mileage and tyre pressure of your e-scooter, with reminders. Offline-first, no account, no tracking.">
+<meta property="og:image" content="https://scorparc.github.io/scootkeeper-content/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ScootKeeper - the digital service book for your e-scooter">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://scorparc.github.io/scootkeeper-content/en/">
+<link rel="alternate" hreflang="de" href="https://scorparc.github.io/scootkeeper-content/">
+<link rel="alternate" hreflang="en" href="https://scorparc.github.io/scootkeeper-content/en/">
+<link rel="alternate" hreflang="x-default" href="https://scorparc.github.io/scootkeeper-content/">
+<style>
+  :root{
+    --bg:#f1f6f2; --surface:#ffffff; --surface-2:#e6f0e9;
+    --text:#12211a; --muted:#4d6459; --line:#cfe0d6;
+    --primary:#12664a; --on-primary:#ffffff; --accent:#a8e6c4;
+    --radius:16px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0e1512; --surface:#16211c; --surface-2:#1d2b24;
+      --text:#e6f0e9; --muted:#a9bfb4; --line:#2a3b33;
+      --primary:#7fd7ab; --on-primary:#06231a; --accent:#1f4b39;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow-wrap:break-word;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:0 20px}
+  a{color:var(--primary)}
+  h1,h2,h3{line-height:1.25; margin:0 0 .5em}
+  h1{font-size:clamp(1.9rem,6vw,2.8rem)}
+  h2{font-size:clamp(1.35rem,4vw,1.8rem); margin-top:0}
+  p{margin:0 0 1em}
+  section{padding:48px 0; border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0}
+
+  /* Sprachumschalter */
+  .lang{display:flex; justify-content:flex-end; gap:10px; padding-top:18px; font-size:.9rem}
+  .lang a,.lang span{padding:4px 10px; border-radius:999px; text-decoration:none}
+  .lang span{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
+  .lang a{color:var(--primary); border:1px solid transparent}
+  .lang a:hover{border-color:var(--line)}
+
+  /* Hero */
+  header{padding:20px 0 8px; text-align:center}
+  .icon{width:112px; height:112px; border-radius:26px; display:block; margin:0 auto 20px}
+  .tagline{font-size:clamp(1.05rem,3.2vw,1.25rem); color:var(--muted); max-width:34em; margin:0 auto 1.2em}
+  .badge{
+    display:inline-block; background:var(--surface-2); color:var(--text);
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 15px; font-size:.9rem;
+  }
+
+  /* Rechner */
+  .calc{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+  .fields{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  label{display:block; font-size:.9rem; color:var(--muted); margin-bottom:6px}
+  input{
+    width:100%; padding:12px 14px; font-size:1rem; font-family:inherit;
+    color:var(--text); background:var(--bg);
+    border:1px solid var(--line); border-radius:10px;
+  }
+  input:focus{outline:2px solid var(--primary); outline-offset:1px}
+  .result{margin-top:24px}
+  .headline{
+    background:var(--accent); color:var(--text);
+    border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px;
+  }
+  .headline .num{display:block; font-size:clamp(2rem,8vw,2.9rem); font-weight:700; line-height:1.1}
+  .headline .lbl{display:block; font-size:.95rem; color:var(--muted)}
+  .cmp{display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .cmp div{background:var(--surface-2); border-radius:12px; padding:16px; text-align:center}
+  .cmp strong{display:block; font-size:1.4rem}
+  .cmp span{font-size:.88rem; color:var(--muted)}
+  .note{font-size:.86rem; color:var(--muted); margin-top:16px}
+
+  /* Karten */
+  .cards{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px}
+  .card h3{font-size:1.05rem; margin-bottom:.4em}
+  .card p{margin:0; color:var(--muted); font-size:.95rem}
+
+  /* Screenshots */
+  .shots{display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory}
+  .shots figure{margin:0; flex:0 0 220px; scroll-snap-align:start}
+  .shots img{
+    width:100%; height:auto; display:block; border-radius:14px;
+    border:1px solid var(--line); background:var(--surface);
+  }
+  .shots figcaption{font-size:.85rem; color:var(--muted); margin-top:8px; text-align:center}
+
+  ul.plain{margin:0 0 1em; padding-left:1.2em}
+  ul.plain li{margin-bottom:.4em}
+
+  .callout{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--primary); border-radius:12px; padding:18px 20px}
+
+  footer{border-top:1px solid var(--line); padding:32px 0 48px; color:var(--muted); font-size:.92rem}
+  footer nav{display:flex; flex-wrap:wrap; gap:8px 20px; margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="lang" aria-label="Language"><a href="../" hreflang="de" lang="de">Deutsch</a><span aria-current="true">English</span></nav>
+</div>
+
+<header>
+  <div class="wrap">
+    <img class="icon" src="../assets/icon.png" width="256" height="256" alt="ScootKeeper app icon">
+    <h1>ScootKeeper</h1>
+    <p class="tagline">Maintenance, battery, mileage &amp; tyre pressure for your e-scooter &ndash; with reminders.</p>
+    <p class="badge">Currently in testing &ndash; not yet publicly available on Google&nbsp;Play</p>
+  </div>
+</header>
+
+<main>
+
+<section id="calculator">
+  <div class="wrap">
+    <h2>What does your scooter cost you per kilometre?</h2>
+    <p>From your maintenance costs and odometer readings, ScootKeeper works out the cost per kilometre &ndash; and compares it with what the same distance would have cost by public transport or by car. You can try the same calculation right here.</p>
+
+    <div class="calc">
+      <div class="fields">
+        <div>
+          <label for="km">Kilometres ridden</label>
+          <input id="km" type="number" inputmode="decimal" min="0" step="1" value="1240">
+        </div>
+        <div>
+          <label for="cost">Costs so far (&euro;)</label>
+          <input id="cost" type="number" inputmode="decimal" min="0" step="0.01" value="24.90">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="headline">
+          <span class="num" id="cpk">&ndash;</span>
+          <span class="lbl" id="cpkLabel">cents per kilometre</span>
+        </div>
+        <div class="cmp">
+          <div><strong id="transit">&ndash;</strong><span>public transport would have cost</span></div>
+          <div><strong id="car">&ndash;</strong><span>a car would have cost</span></div>
+        </div>
+      </div>
+
+      <p class="note">The comparison figures are rough reference values for orientation, not an up-to-date calculation: public transport 12&nbsp;ct/km (German Deutschlandticket at an assumed 500&nbsp;km per month), car 35&nbsp;ct/km (ADAC cost estimate for a small car including depreciation, insurance, fuel and maintenance).</p>
+    </div>
+  </div>
+</section>
+
+<section id="battery">
+  <div class="wrap">
+    <h2>How healthy is your battery?</h2>
+    <p>From a single charge &ndash; the energy charged and the state of charge before and after &ndash; ScootKeeper extrapolates the actual capacity and compares it with the rated capacity of your battery. You can try this calculation here as well.</p>
+
+    <div class="calc">
+      <div class="fields">
+        <div>
+          <label for="nominal">Rated capacity (Wh)</label>
+          <input id="nominal" type="number" inputmode="decimal" min="0" step="1" value="468">
+        </div>
+        <div>
+          <label for="energy">Energy charged (Wh)</label>
+          <input id="energy" type="number" inputmode="decimal" min="0" step="1" value="180">
+        </div>
+        <div>
+          <label for="from">State of charge before (%)</label>
+          <input id="from" type="number" inputmode="numeric" min="0" max="100" step="1" value="20">
+        </div>
+        <div>
+          <label for="to">State of charge after (%)</label>
+          <input id="to" type="number" inputmode="numeric" min="0" max="100" step="1" value="70">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="headline">
+          <span class="num" id="health">&ndash;</span>
+          <span class="lbl" id="healthLabel">battery health</span>
+        </div>
+        <div class="cmp">
+          <div><strong id="capacity">&ndash;</strong><span>estimated actual capacity</span></div>
+          <div><strong id="capacityLoss">&ndash;</strong><span>compared to the rated capacity</span></div>
+        </div>
+      </div>
+
+      <p class="note">Charge ranges below 10&nbsp;percentage points are too imprecise to extrapolate from, so the app deliberately returns no result for them. If no capacity data is available at all, the app estimates from the cycle count instead (about 4&nbsp;% loss per 100 full cycles, floored at 50&nbsp;%). Both are estimates, not a laboratory measurement.</p>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Features</h2>
+    <div class="cards">
+      <div class="card"><h3>Vehicle profiles</h3><p>With frame number, purchase details and notes &ndash; the basis of your vehicle documentation.</p></div>
+      <div class="card"><h3>Service history</h3><p>Maintenance entries with costs and mileage, fully traceable.</p></div>
+      <div class="card"><h3>Battery &amp; mileage</h3><p>Log charges, odometer readings and tyre pressure.</p></div>
+      <div class="card"><h3>Reminders</h3><p>Mileage- and time-based reminders for maintenance and care.</p></div>
+      <div class="card"><h3>Photos &amp; receipts</h3><p>Attach photos and proof of purchase to vehicles and entries.</p></div>
+      <div class="card"><h3>Vehicle dossier as PDF</h3><p>Share all data in one document &ndash; for the police or your insurer, for instance.</p></div>
+      <div class="card"><h3>CSV &amp; calendar</h3><p>Export maintenance data as CSV and add appointments to your calendar.</p></div>
+      <div class="card"><h3>Local backup</h3><p>Free ZIP backup of all data and photos, ready to store or share.</p></div>
+      <div class="card"><h3>Six languages</h3><p>German, English, French, Italian, Spanish and Portuguese.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="wrap">
+    <h2>A look inside</h2>
+    <div class="shots">
+      <figure><img src="../assets/shot-dashboard.png" width="540" height="1080" alt="Dashboard showing the number of scooters, total mileage, maintenance costs and reminders" loading="lazy"><figcaption>Dashboard</figcaption></figure>
+      <figure><img src="../assets/shot-detail.png" width="540" height="1080" alt="Vehicle detail view with vehicle data and export as PDF or CSV" loading="lazy"><figcaption>Vehicle data</figcaption></figure>
+      <figure><img src="../assets/shot-wartung.png" width="540" height="1080" alt="Maintenance log with reminders and an entry including costs" loading="lazy"><figcaption>Maintenance log</figcaption></figure>
+      <figure><img src="../assets/shot-liste.png" width="540" height="1080" alt="List of your own scooters" loading="lazy"><figcaption>My scooters</figcaption></figure>
+      <figure><img src="../assets/shot-hilfe.png" width="540" height="1080" alt="Help screen explaining the core features" loading="lazy"><figcaption>How it works</figcaption></figure>
+    </div>
+    <p class="note">These screenshots show the German interface, because that is the version currently in testing. The app itself ships in six languages.</p>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <h2>Privacy</h2>
+    <p>ScootKeeper works without an account and without our own server. Your entries are stored locally on your device. There are no ads, no tracking and no sharing of your data.</p>
+    <p>To keep the imprint and the privacy policy up to date, the app fetches those texts from GitHub at most once a day. For technical reasons your IP address is transmitted to GitHub in the process; no app content is sent. Without an internet connection the bundled versions are shown.</p>
+    <p>The free local ZIP backup can be saved or shared through an app of your choice. With Pro you can additionally back up your data to your own Google Drive account &ndash; transferred over an encrypted connection (TLS) and stored in an app-private area invisible to other apps. Only you have access; we never receive your data.</p>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Pricing and transparency</h2>
+    <p>ScootKeeper&nbsp;Pro is a subscription and is currently marked as &ldquo;Coming soon&rdquo;. It adds convenient Google Drive backup to the free local backup. Every other feature shown here is free to use.</p>
+    <div class="callout">
+      <p style="margin:0"><strong>No brokering, no commission.</strong> ScootKeeper does not broker any products or services and contains no affiliate or partner links. No commission is paid, and there are no advertising partners. The app is funded solely through the optional Pro subscription.</p>
+    </div>
+  </div>
+</section>
+
+<section id="disclaimer">
+  <div class="wrap">
+    <h2>Please note</h2>
+    <p>ScootKeeper is a self-organisation tool and does not replace professional servicing by a workshop. The cost comparisons on this page are for rough orientation and are not a binding calculation.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://scorparc.github.io/legal/impressum_en.html">Imprint</a>
+      <a href="https://scorparc.github.io/legal/scootkeeper/datenschutz_en.html">Privacy policy</a>
+    </nav>
+    <p style="margin:0">&copy; 2026 Marc Neumann &middot; ScootKeeper</p>
+  </div>
+</footer>
+<script>
+// Calculation mirrored 1:1 from lib/core/mileage_math.dart of the app.
+// Constants there: publicTransitCostPerKmCents = 12, carCostPerKmCents = 35.
+var PUBLIC_TRANSIT_COST_PER_KM_CENTS = 12;
+var CAR_COST_PER_KM_CENTS = 35;
+
+// Mirrors costPerKmCents({totalCostCents, totalKm}) from mileage_math.dart:
+// returns null when totalKm is null/<=0 or totalCostCents <= 0.
+function costPerKmCents(totalCostCents, totalKm) {
+  if (totalKm === null || totalKm <= 0 || totalCostCents <= 0) return null;
+  return totalCostCents / totalKm;
+}
+
+// Mirrors comparisonCostCents(totalKm, costPerKmCents) from mileage_math.dart:
+// (totalKm * costPerKmCents).round()
+function comparisonCostCents(totalKm, cpkCents) {
+  return Math.round(totalKm * cpkCents);
+}
+
+function euro(cents) {
+  return '\u20ac' + (cents / 100).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function update() {
+  var km = parseFloat(document.getElementById('km').value);
+  var euros = parseFloat(document.getElementById('cost').value);
+  if (isNaN(km)) km = 0;
+  if (isNaN(euros)) euros = 0;
+  // The app calculates in cents (int) internally, so round here as well.
+  var totalCostCents = Math.round(euros * 100);
+
+  var cpk = costPerKmCents(totalCostCents, km);
+  var cpkEl = document.getElementById('cpk');
+  var lblEl = document.getElementById('cpkLabel');
+
+  if (cpk === null) {
+    cpkEl.textContent = '\u2013';
+    lblEl.textContent = 'Please enter kilometres and costs greater than 0';
+    document.getElementById('transit').textContent = '\u2013';
+    document.getElementById('car').textContent = '\u2013';
+    return;
+  }
+
+  cpkEl.textContent = cpk.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ct';
+  lblEl.textContent = 'per kilometre';
+  document.getElementById('transit').textContent = euro(comparisonCostCents(km, PUBLIC_TRANSIT_COST_PER_KM_CENTS));
+  document.getElementById('car').textContent = euro(comparisonCostCents(km, CAR_COST_PER_KM_CENTS));
+}
+
+document.getElementById('km').addEventListener('input', update);
+document.getElementById('cost').addEventListener('input', update);
+update();
+
+// Calculation mirrored 1:1 from lib/core/battery_math.dart of the app.
+
+// Mirrors estimateCapacityWh({energyWh, fromPercent, toPercent}):
+// ranges below 10 percentage points (fraction < 0.1) return null.
+function estimateCapacityWh(energyWh, fromPercent, toPercent) {
+  if (energyWh === null || fromPercent === null || toPercent === null) return null;
+  var fraction = (toPercent - fromPercent) / 100.0;
+  if (fraction < 0.1 || energyWh <= 0) return null;
+  return energyWh / fraction;
+}
+
+// Mirrors batteryHealthScore({nominalWh, avgCapacityWh, cycles}) for the case
+// with capacity data: (avgCapacityWh / nominalWh * 100).clamp(0,100).round()
+function batteryHealthScore(nominalWh, avgCapacityWh) {
+  if (nominalWh !== null && nominalWh > 0 && avgCapacityWh !== null) {
+    return Math.round(Math.min(100, Math.max(0, avgCapacityWh / nominalWh * 100)));
+  }
+  return null;
+}
+
+function num(id) {
+  var v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
+}
+
+function updateBattery() {
+  var nominal = num('nominal');
+  var capacity = estimateCapacityWh(num('energy'), num('from'), num('to'));
+  var healthEl = document.getElementById('health');
+  var labelEl = document.getElementById('healthLabel');
+  var capEl = document.getElementById('capacity');
+  var lossEl = document.getElementById('capacityLoss');
+
+  if (capacity === null) {
+    healthEl.textContent = '\u2013';
+    labelEl.textContent = 'The charge range must span at least 10 percentage points';
+    capEl.textContent = '\u2013';
+    lossEl.textContent = '\u2013';
+    return;
+  }
+
+  capEl.textContent = Math.round(capacity).toLocaleString('en-GB') + ' Wh';
+  var score = batteryHealthScore(nominal, capacity);
+  if (score === null) {
+    healthEl.textContent = '\u2013';
+    labelEl.textContent = 'Please enter a rated capacity greater than 0';
+    lossEl.textContent = '\u2013';
+    return;
+  }
+  healthEl.textContent = score + ' %';
+  labelEl.textContent = 'battery health';
+  lossEl.textContent = (score >= 100 ? '\u00b10' : '\u2212' + (100 - score)) + ' %';
+}
+
+['nominal', 'energy', 'from', 'to'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', updateBattery);
+});
+updateBattery();
+</script>
+
+</body>
+</html>
